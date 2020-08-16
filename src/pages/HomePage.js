@@ -1,115 +1,76 @@
 import React from "react";
-import { Form, Input, Button, Radio, Tag, Divider, List } from 'antd';
-import {OwlService} from "../service/OwlService";
+import {Button, message, Select, Steps} from 'antd';
+import {MedHistory} from "./MedHistory";
+
+const {Step} = Steps;
+const {Option} = Select;
 
 export class HomePage extends React.Component {
 
     state = {
-        tag: '',
-        classes: [],
-        objects: []
-    };
-    tags = [];
-
-    onFormLayoutChange = (event) => {
-        console.log(event);
+        current: 0,
     };
 
-    onTaggingChange = (event) => {
-     this.setState({tag: event.target.value});
+
+    steps = [
+        {
+            title: 'History',
+            content: (<MedHistory></MedHistory>),
+        },
+        {
+            title: 'Tests',
+            content: 'Second-content',
+        },
+        {
+            title: 'Treatments',
+            content: 'Last-content',
+        },
+    ];
+
+    next = () => {
+        const current = this.state.current + 1;
+        this.setState({current});
     };
 
-    onTaggingEnterPress = (event) => {
-        this.tags.push(this.state.tag);
-        this.setState({tag: ''});
-        // this.setState({tags:this.state.tags.push(this.state.tag)});
+    prev = () => {
+        const current = this.state.current - 1;
+        this.setState({current});
     };
 
-    viewTag = () => {
-        return this.tags.map(tag =>
-           (
-              <Tag onClick={() => {this.onobjTagClick(tag)}} color={'green'}>{tag}</Tag>
-          )
-      );
-    };
-
-    handleRadioChange = (event) => {
-        switch (event.target.value) {
-            case 'class':
-                this.classOnClick();
-                break;
-            case 'object':
-                this.objectOnClick();
-                break;
-        }
-    };
-
-    classOnClick = () => {
-        OwlService.getClass().then(data => {
-            this.setState({objects : []});
-            this.setState({classes : data});
-        });
-    };
-
-    objectOnClick = () => {
-        OwlService.getObject().then(data => {
-            this.setState({classes : []});
-            this.setState({objects : data});
-        });
-    };
-
-    viewClass= () => {
-        return this.state.classes.map(cls => (
-            <Tag>{cls}</Tag>
-        ));
-    };
-
-    viewObject= () => {
-        return this.state.objects.map(obj => (
-            <Tag>{obj}</Tag>
-        ));
-    };
-
-    onobjTagClick = (obj) =>{
-        console.log('clicked', obj);
-        const index =  this.tags.indexOf(obj);
-        if (index > -1) {
-            this.tags.splice(index, 1);
-            this.setState({tag: ''});
-        }
-    }
 
     render() {
-        return(
-            <div style={{padding: '10%'}}>
-            <Form
-                onValuesChange={this.onFormLayoutChange}>
-                <Form.Item label="">
-                    <Input style={{width: '50%'}} placeholder="Name" />
-                </Form.Item>
-                <Form.Item label="">
-                    <Input style={{width: '50%'}} placeholder="Age" />
-                </Form.Item>
-                <div>
-                    {this.viewTag()}
-                </div>
-                <Form.Item label="">
-                    <Input value={this.state.tag} onPressEnter={this.onTaggingEnterPress} onChange={this.onTaggingChange} style={{width: '50%'}} placeholder="Tags" />
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary">Submit</Button>
-                </Form.Item>
-            </Form>
-                <Divider></Divider>
-                <div>
-                    <Radio.Group onChange={this.handleRadioChange}>
-                        <Radio.Button value="class">Class</Radio.Button>
-                        <Radio.Button value="object">Object</Radio.Button>
-                    </Radio.Group>
-                    <br/> <br/>
-                    <div>
-                        {this.viewClass()}
-                        {this.viewObject()}
+        const {current} = this.state;
+        const steps = this.steps;
+        return (
+            <div>
+                <div style={{padding: '2%'}}>
+                    {this.state.name}
+                    <Steps current={current}>
+                        {steps.map(item => (
+                            <Step key={item.title} title={item.title}/>
+                        ))}
+                    </Steps>
+                    <div className="steps-content">
+                        {steps[current].content}
+
+                        <div className="steps-action">
+                            {current < steps.length - 1 && (
+                                <Button type="primary" onClick={() => this.next()}>
+                                    Next
+                                </Button>
+                            )}
+                            {current === steps.length - 1 && (
+                                <Button type="primary" onClick={() => message.success('Processing complete!')}>
+                                    Done
+                                </Button>
+                            )}
+                            {current > 0 && (
+                                <Button style={{margin: '0 8px'}} onClick={() => this.prev()}>
+                                    Previous
+                                </Button>
+                            )}
+                        </div>
+
                     </div>
                 </div>
             </div>
