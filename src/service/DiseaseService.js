@@ -5,7 +5,7 @@ export const DiseaseService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(reqObj)
         };
-        const url = 'http://' + process.env.REACT_APP_BACKEND + '/get-dis-test';
+        const url = 'https://' + process.env.REACT_APP_BACKEND + '/get-dis-test';
         return fetch( url , requestOptions)
             .then(response => response.json())
             .catch(err => console.log(err));
