@@ -1,5 +1,5 @@
 export const OwlService = {
-    getClass : () => {
+   /* getClass : () => {
         return fetch('http://localhost:8080/getclass')
             .then(response => response.json())
             .catch(err => console.log(err));
@@ -9,5 +9,5 @@ export const OwlService = {
         return fetch('http://localhost:8080/getobject')
             .then(res => res.json())
             .catch(console.log)
-    }
+    }*/
 };
