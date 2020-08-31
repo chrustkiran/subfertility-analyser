@@ -1,6 +1,8 @@
 import React from "react";
 import {Button, message, Select, Steps} from 'antd';
 import {MedHistory} from "./MedHistory";
+import {Test} from "./Test";
+import {DiseaseTest} from "../common/DiseaseTest";
 
 const {Step} = Steps;
 const {Option} = Select;
@@ -19,7 +21,7 @@ export class HomePage extends React.Component {
         },
         {
             title: 'Tests',
-            content: 'Second-content',
+            content: (<Test></Test>),
         },
         {
             title: 'Treatments',

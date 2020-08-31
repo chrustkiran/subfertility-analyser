@@ -1,9 +1,10 @@
 import React from "react";
-import {Alert, Button, Col, Form, Input, Row, Select} from "antd";
+import {Alert, Button, Col, Card, Form, Input, Row, Select} from "antd";
 import {bloodgroup} from "../conf/Bloodgroup";
 import {MedHistoryService} from "../service/MedHistoryService";
 import {CaseUtil} from "../util/CaseUtil";
 import {DiseaseService} from "../service/DiseaseService";
+import {DiseaseTest} from "../common/DiseaseTest";
 
 const {Option} = Select;
 
@@ -66,6 +67,7 @@ export class MedHistory extends React.Component {
                 this.diseases.push(disease.toString());
             });
             this.diseaseTests = res;
+            DiseaseTest.value = res;
             this.setState({diseaseFetched: true});
         });
     };
@@ -112,6 +114,7 @@ export class MedHistory extends React.Component {
         if (values != null) {
             this.fetchDisease(values);
         }
+        window.scrollTo(0, 0)
     };
 
     
@@ -120,7 +123,7 @@ export class MedHistory extends React.Component {
         return (
             <Row>
                 <Col flex="650px">
-
+                    <Card>
                     <Form layout={"vertical"}
                           style={{marginTop: '5%'}}
                           onValuesChange={this.onFormLayoutChange}
@@ -159,6 +162,7 @@ export class MedHistory extends React.Component {
                                     type="primary">submit</Button>
                         </Form.Item>
                     </Form>
+                    </Card>
                 </Col>
                 <Col flex="auto">
                     {this.state.diseaseFetched &&
