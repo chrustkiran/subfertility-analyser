@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Button, Col, Card, Form, Input, Row, Select} from "antd";
+import {Alert, Button, Col, Card, Form, Input, Row, Select, Spin} from "antd";
 import {bloodgroup} from "../conf/Bloodgroup";
 import {MedHistoryService} from "../service/MedHistoryService";
 import {CaseUtil} from "../util/CaseUtil";
@@ -54,15 +54,11 @@ export class MedHistory extends React.Component {
         })
     };
 
-    onSubmit = () => {
-       /* this.setState({submitClicked: true});
-        this.fetchDisease();*/
-    };
-
     fetchDisease = (reqObj) => {
         this.diseases = [];
        // const reqObj = {name: this.state.Name, age: this.state.Age,smoking: this.state.Smoking, alcohol: this.state.Alcohol};
         DiseaseService.getMedHistory(reqObj).then(res => {
+            this.setState({submitClicked: false})
             Object.keys(res).forEach(disease => {
                 this.diseases.push(disease.toString());
             });
@@ -111,6 +107,7 @@ export class MedHistory extends React.Component {
     };
     
     onFinish = (values) => {
+        this.setState({submitClicked: true})
         if (values != null) {
             this.fetchDisease(values);
         }
@@ -164,7 +161,9 @@ export class MedHistory extends React.Component {
                     </Form>
                     </Card>
                 </Col>
+                <Col flex={'15px'}></Col>
                 <Col flex="auto">
+                    {this.state.submitClicked && <Spin style={{marginTop: '30%'}} size="large" />}
                     {this.state.diseaseFetched &&
                     <Alert style={{marginTop: '5%'}}
                            message="Patient may have these diseases"

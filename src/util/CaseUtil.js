@@ -5,6 +5,10 @@ export const CaseUtil = {
         } else {
             return key.replace(/([A-Z])/g, " $1").substr(1);
         }
+    },
+
+    testResToNormat: (stringValue) => {
+        return stringValue.replace(/([A-Z]+)/g, " $1").replace(/([A-Z][a-z])/g, " $1")
     }
 
 };
