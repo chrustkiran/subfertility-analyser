@@ -120,9 +120,8 @@ export class MedHistory extends React.Component {
         return (
             <Row>
                 <Col flex="650px">
-                    <Card>
+                    <Card style={{marginTop: '5%'}}>
                     <Form layout={"vertical"}
-                          style={{marginTop: '5%'}}
                           onValuesChange={this.onFormLayoutChange}
                     onFinish={this.onFinish}>
                         <Form.Item label="Name" name="Name" rules={[{required: true, message: 'Please enter your name'}]}>

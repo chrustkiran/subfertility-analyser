@@ -1,26 +1,27 @@
 import React from "react";
-import {DiseaseTest} from "../common/DiseaseTest";
-import {Row, Col, Card, Form, Input, Select, Button, Radio, Tag, Typography, Alert} from "antd";
+import {DiseaseTest, FinalDisease} from "../common/DiseaseTest";
+import {Row, Col, Card, Form, message, Button, Radio, Tag, Typography, Alert} from "antd";
 import {ExceptionOutlined} from '@ant-design/icons';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import { faStethoscope, faNotesMedical } from '@fortawesome/free-solid-svg-icons'
+import {faStethoscope, faNotesMedical} from '@fortawesome/free-solid-svg-icons'
 import {CaseUtil} from "../util/CaseUtil";
 
 
 const formItemStyleObt = {width: '80%', float: "left"};
 
-const { Title } = Typography;
+const {Title} = Typography;
 const YES = 'yes';
 const NO = 'no'
 
 export class Test extends React.Component {
     state = {
         diseaseTest: {},
-        checkClicked: false
+        checkClicked: false,
+        diseases: [],
     }
 
     componentDidMount() {
-        window.scrollTo(0,0);
+        window.scrollTo(0, 0);
         this.setState({diseaseTest: DiseaseTest.value});
     }
 
@@ -33,25 +34,67 @@ export class Test extends React.Component {
 
     }
 
-    onTestResValueChange = (disease, event) => {
-        console.log(disease, event);
+    onTestResValueChange = (test, event) => {
+        const result = event.target.value;
+        test['result'] = result;
+
+    }
+
+    removeResultNoDiseases = () => {
+        this.setState({diseases: Object.keys(DiseaseTest.value)});
+        Object.keys(this.state.diseaseTest).map(disease => {
+            this.state.diseaseTest[disease].map(test => {
+                if (test['result'] === NO) {
+                    const index = this.state.diseases.indexOf(disease);
+                    if (index > -1) {
+                        this.state.diseases.splice(index, 1);
+                    }
+                }
+            })
+        });
+    }
+
+    checkAllTestConducted = () => {
+        for(const disease of Object.keys(this.state.diseaseTest)) {
+            for(const test of this.state.diseaseTest[disease]) {
+                if (!test.hasOwnProperty('result')) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     onFinish = (values) => {
-        if (values != null) {
-            // this.fetchDisease(values);
-        }
+    /*    if (!this.checkAllTestConducted()) {
+            message.error({
+                content: 'Please conduct all tests',
+                className: 'custom-class',
+                style: {
+                    marginTop: '20vh',
+                },
+            });
+        } else {*/
+            this.removeResultNoDiseases();
+            FinalDisease.value = this.state.diseases;
+            this.setState({checkClicked: true});
+            window.scrollTo(0,0);
+        //}
+
     }
 
 
     displayTests = () => {
         return Object.keys(this.state.diseaseTest).map(disease => {
             return (
-                <Form.Item label={(  <Title level={3} type={'danger'}>  <FontAwesomeIcon icon={faStethoscope} /> {disease}</Title>)} name={disease}>
+                <Form.Item label={(
+                    <Title level={3} type={'danger'}> <FontAwesomeIcon icon={faStethoscope}/> {disease}</Title>)}
+                           name={disease}>
                     {
                         this.state.diseaseTest[disease].map(test => {
                             return (
-                                <Card style={{textAlign: 'left'}} title={(<span><FontAwesomeIcon icon={faNotesMedical} />  {test.test}</span>)}>
+                                <Card style={{textAlign: 'left'}}
+                                      title={(<span><FontAwesomeIcon icon={faNotesMedical}/> {test.test}</span>)}>
                                     <Row>
                                         <Col flex={'50%'}>
                                             <span>
@@ -60,7 +103,8 @@ export class Test extends React.Component {
                                         </Col>
                                         <Col flex={'50%'}>
                                             <span>
-                                                <Radio.Group onChange={(event) => this.onTestResValueChange(disease, event)}>
+                                                <Radio.Group
+                                                    onChange={(event) => this.onTestResValueChange(test, event)}>
                                                     <Radio style={{color: "green"}} value={YES}>Yes</Radio>
                                                     <Radio style={{color: "red"}} value={NO}>No</Radio>
                                                 </Radio.Group>
@@ -76,45 +120,68 @@ export class Test extends React.Component {
         })
     }
 
+    displayFinalDiseases = () => {
+        let countDis = 0;
+        return this.state.diseases.map(disease => {
+            countDis++;
+            return (
+                <div>
+                    <div style={{fontWeight: 'bold'}}>{countDis}. {CaseUtil.camelToNorm(disease)}</div>
+                    <br/>
+                </div>
+
+            )
+        });
+    }
+
 
     render() {
-        console.log(this.state.diseaseTest)
         return (
             <div>
-                <Row>
-                    <Col flex={'650px'}>
-                        <Card>
-                            <Form layout={"vertical"}
-                                  style={{marginTop: '5%'}}
-                                  onValuesChange={this.onFormLayoutChange}
-                                  onFinish={this.onFinish}>
+                {Object.keys(this.state.diseaseTest).length > 0 ?
+                <div>
+                    <Row>
+                        <Col flex={'650px'}>
+                            <Card style={{marginTop: '5%'}}>
+                                <Form layout={"vertical"}
+                                      style={{marginTop: '5%'}}
+                                      onValuesChange={this.onFormLayoutChange}
+                                      onFinish={this.onFinish}>
 
-                                {this.displayTests()}
+                                    {this.displayTests()}
 
-                                <Form.Item>
-                                    <Button type="primary" htmlType="submit" onClick={this.onSubmit}
-                                            type="primary">check</Button>
-                                </Form.Item>
-                            </Form>
-                        </Card>
-                    </Col>
-                    <Col flex={'30%'}>
-                        {this.state.diseaseFetched && this.diseases.length > 0 &&
-                        <Alert style={{marginTop: '5%'}}
-                               message="Please conduct these tests to confirm"
-                               description={
-                                   <div style={{textAlign: 'left', marginLeft: '40%'}}>
-                                       {this.displayTests()}
-                                   </div>
-                               }
-                               type="warning"
-                        />
+                                    <Form.Item>
+                                        <Button type="primary" htmlType="submit" onClick={this.onSubmit}
+                                                type="primary">check</Button>
+                                    </Form.Item>
+                                </Form>
+                            </Card>
+                        </Col>
+                        <Col flex={'5%'}>
+                        </Col>
+                        <Col flex={'auto'}>
+                            {this.state.checkClicked &&
+                            <Alert style={{marginTop: '5%'}}
+                                   message="Final Diseases"
+                                   description={
+                                       <div style={{textAlign: 'left', marginLeft: '40%'}}>
+                                           <br/>
+                                           {this.displayFinalDiseases()}
+                                       </div>
+                                   }
+                                   type="error"
+                            />
 
-                        }
-                    </Col>
-                </Row>
-                <br/>
-                <br/>
+                            }
+                        </Col>
+                    </Row>
+                    <br/>
+                    <br/>
+                </div> :
+                    <div style={{textAlign: 'center', marginTop: '10%'}}>
+                        No Diseases!
+                    </div>
+                }
             </div>
         );
     }
