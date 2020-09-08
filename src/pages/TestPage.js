@@ -13,7 +13,7 @@ const {Title} = Typography;
 const YES = 'yes';
 const NO = 'no'
 
-export class Test extends React.Component {
+export class TestPage extends React.Component {
     state = {
         diseaseTest: {},
         checkClicked: false,
@@ -56,9 +56,13 @@ export class Test extends React.Component {
 
     checkAllTestConducted = () => {
         for(const disease of Object.keys(this.state.diseaseTest)) {
+            const testArray = [];
             for(const test of this.state.diseaseTest[disease]) {
-                if (!test.hasOwnProperty('result')) {
-                    return false;
+                if (!testArray.includes(test.test)) {
+                    testArray.push(test.test);
+                    if (!test.hasOwnProperty('result')) {
+                        return false;
+                    }
                 }
             }
         }
@@ -66,7 +70,7 @@ export class Test extends React.Component {
     }
 
     onFinish = (values) => {
-    /*    if (!this.checkAllTestConducted()) {
+        if (!this.checkAllTestConducted()) {
             message.error({
                 content: 'Please conduct all tests',
                 className: 'custom-class',
@@ -74,24 +78,28 @@ export class Test extends React.Component {
                     marginTop: '20vh',
                 },
             });
-        } else {*/
+        } else {
             this.removeResultNoDiseases();
             FinalDisease.value = this.state.diseases;
             this.setState({checkClicked: true});
             window.scrollTo(0,0);
-        //}
+            this.props.update();
+        }
 
     }
 
 
     displayTests = () => {
         return Object.keys(this.state.diseaseTest).map(disease => {
+            const testArray = [];
             return (
                 <Form.Item label={(
                     <Title level={3} type={'danger'}> <FontAwesomeIcon icon={faStethoscope}/> {disease}</Title>)}
                            name={disease}>
                     {
                         this.state.diseaseTest[disease].map(test => {
+                            if (!testArray.includes(test['positiveResult'])) {
+                                testArray.push(test['positiveResult'])
                             return (
                                 <Card style={{textAlign: 'left'}}
                                       title={(<span><FontAwesomeIcon icon={faNotesMedical}/> {test.test}</span>)}>
@@ -113,6 +121,7 @@ export class Test extends React.Component {
                                     </Row>
                                 </Card>
                             )
+                        }
                         })
                     }
                 </Form.Item>

@@ -1,30 +1,35 @@
 import React from "react";
-import {Alert, Button, Col, Card, Form, Input, Row, Select, Spin} from "antd";
+import {Alert, Button, Col, Card, Form, Input, Row, Select, Spin, Typography} from "antd";
 import {bloodgroup} from "../conf/Bloodgroup";
 import {MedHistoryService} from "../service/MedHistoryService";
 import {CaseUtil} from "../util/CaseUtil";
 import {DiseaseService} from "../service/DiseaseService";
 import {DiseaseTest} from "../common/DiseaseTest";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faStethoscope} from "@fortawesome/free-solid-svg-icons";
 
 const {Option} = Select;
-
+const {Title} = Typography;
 const formItemStyleObt = {width: '80%', float: "left"};
 
 export class MedHistory extends React.Component {
 
     state = {
         medHistoryFetched: false,
+        symptomAnalysisFetched: false,
         submitClicked: false,
         diseaseFetched: false,
     };
 
     medHistory = [];
+    allSymptoms = [];
     diseases = [];
     diseaseTests = {};
 
     constructor(props) {
         super(props);
-        this.getAllMedHistory();
+        // this.getAllMedHistory();
+        this.getAllSymptomAnalysis();
     }
 
     onInputValueChanges = (label, value) => {
@@ -33,15 +38,86 @@ export class MedHistory extends React.Component {
         this.setState(obj);*/
     };
 
-    getAllMedHistory = () => {
+    getAllSymptomAnalysis = () => {
+        this.allSymptoms = [];
+        MedHistoryService.getSymptomAnalysis().then(res => {
+            this.allSymptoms = res;
+            this.setState({symptomAnalysisFetched: true});
+        });
+    }
+
+    /*getAllMedHistory = () => {
         this.medHistory = [];
         MedHistoryService.getMedHistory().then(res => {
             this.medHistory = res;
             this.setState({medHistoryFetched: true});
         });
+    };*/
+
+    displaySymptomFormItem = () => {
+        return this.allSymptoms != undefined && Object.keys(this.allSymptoms).map(symptom => {
+            // console.log(symptom);
+            if (Object.keys(this.allSymptoms[symptom]).length > 0 && this.allSymptoms[symptom].length == undefined) {
+                return (<div>
+                        <Title style={{fontSize: 18}} underline>{CaseUtil.camelToNorm(symptom)}</Title>
+                        {Object.keys(this.allSymptoms[symptom]).reverse().map(subSymptom => {
+                            return (
+                                <Card>
+                                    <Title style={{fontSize: 15}}
+                                           type={"secondary"}>{CaseUtil.camelToNorm(subSymptom)}</Title>
+                                    {
+                                        this.allSymptoms[symptom][subSymptom].length > 0 && this.allSymptoms[symptom][subSymptom].reverse().map(instance => {
+                                            return (
+                                                <Form.Item label={CaseUtil.snakeToNorm(instance)}
+                                                           name={CaseUtil.NormToSnake(CaseUtil.camelToNorm(subSymptom)) + '_' + instance}
+                                                >
+                                                    <Input style={formItemStyleObt}
+                                                           placeholder={CaseUtil.snakeToNorm(instance)}
+                                                           onChange={(event) => {
+                                                               this.onInputValueChanges(instance, event.target.value)
+                                                           }}/>
+                                                </Form.Item>
+                                            )
+                                        })
+                                    } {
+                                    (
+                                        this.allSymptoms[symptom][subSymptom].length == 0 &&
+                                        <Form.Item label={CaseUtil.camelToNorm(subSymptom)} name={CaseUtil.NormToSnake(CaseUtil.camelToNorm(subSymptom))}>
+                                            <Input style={formItemStyleObt} placeholder={subSymptom}
+                                                   onChange={(event) => {
+                                                       this.onInputValueChanges(subSymptom, event.target.value)
+                                                   }}/>
+                                        </Form.Item>
+                                    )
+                                }
+                                </Card>
+                            )
+                        })}
+                    </div>
+                )
+            } else if (symptom.length > 0) {
+                return (
+                    <Form.Item label={CaseUtil.camelToNorm(symptom)} name={CaseUtil.NormToSnake(CaseUtil.camelToNorm(symptom))}
+                    >
+                        <Input style={formItemStyleObt} placeholder={CaseUtil.camelToNorm(symptom)}
+                               onChange={(event) => {
+                                   this.onInputValueChanges(symptom, event.target.value)
+                               }}/>
+                    </Form.Item>
+                )
+            }
+            /*return (
+                <Form.Item label={CaseUtil.camelToNorm(medHist)} name={CaseUtil.camelToNorm(medHist)}
+                >
+                    <Input style={formItemStyleObt} placeholder={CaseUtil.camelToNorm(medHist)} onChange={(event) => {
+                        this.onInputValueChanges(medHist, event.target.value)
+                    }}/>
+                </Form.Item>
+            )*/
+        })
     };
 
-    displayMedHistoryFormItem = () => {
+    /*displayMedHistoryFormItem = () => {
         return this.medHistory != undefined && this.medHistory.map(medHist => {
             return (
                 <Form.Item label={CaseUtil.camelToNorm(medHist)} name={CaseUtil.camelToNorm(medHist)}
@@ -52,11 +128,11 @@ export class MedHistory extends React.Component {
                 </Form.Item>
             )
         })
-    };
+    };*/
 
     fetchDisease = (reqObj) => {
         this.diseases = [];
-       // const reqObj = {name: this.state.Name, age: this.state.Age,smoking: this.state.Smoking, alcohol: this.state.Alcohol};
+        // const reqObj = {name: this.state.Name, age: this.state.Age,smoking: this.state.Smoking, alcohol: this.state.Alcohol};
         DiseaseService.getMedHistory(reqObj).then(res => {
             this.setState({submitClicked: false})
             Object.keys(res).forEach(disease => {
@@ -64,6 +140,8 @@ export class MedHistory extends React.Component {
             });
             this.diseaseTests = res;
             DiseaseTest.value = res;
+            console.log(DiseaseTest.value);
+            this.props.update();
             this.setState({diseaseFetched: true});
         });
     };
@@ -105,7 +183,7 @@ export class MedHistory extends React.Component {
             })
         }
     };
-    
+
     onFinish = (values) => {
         this.setState({submitClicked: true})
         if (values != null) {
@@ -114,81 +192,57 @@ export class MedHistory extends React.Component {
         window.scrollTo(0, 0)
     };
 
-    
 
     render() {
         return (
-            <Row>
-                <Col flex="650px">
-                    <Card style={{marginTop: '5%'}}>
-                    <Form layout={"vertical"}
-                          onValuesChange={this.onFormLayoutChange}
-                    onFinish={this.onFinish}>
-                        <Form.Item label="Name" name="Name" rules={[{required: true, message: 'Please enter your name'}]}>
-                            <Input
-                                style={formItemStyleObt} placeholder="Name" onChange={(event) => {
-                                this.onInputValueChanges('Name', event.target.value)
-                            }}
-                            />
-                        </Form.Item>
-                        <Form.Item label="Age" name="Age" labelAlign={"right"}
-                                   rules={[{required: true, message: 'Please enter your age'}]}>
-                            <Input
-                                style={formItemStyleObt} placeholder="Age" onChange={(event) => {
-                                this.onInputValueChanges('Age', event.target.value)
-                            }}
-                            />
-                        </Form.Item>
+            <div>
+                {!this.state.symptomAnalysisFetched && <Spin style={{marginTop: '10%'}} size="large"/>}
+                {this.state.symptomAnalysisFetched && <Row>
+                    <Col flex="650px">
+                        <Card style={{marginTop: '5%'}}>
+                            <Form layout={"vertical"}
+                                  onValuesChange={this.onFormLayoutChange}
+                                  onFinish={this.onFinish}>
 
-                        <Form.Item label="Blood Group" labelAlign={"right"} name="Blood group"
-                                   rules={[{required: true, message: 'Please select blood group'}]}>
-                            <Select onChange={(event) => {
-                                this.onInputValueChanges('Blood_group', event)
-                            }} style={formItemStyleObt} placeholder="Blood group">
-                                {bloodgroup.map(bloodType => {
-                                    return (<Option value={bloodType}>{bloodType} </Option>)
-                                })}
-                            </Select>
-                        </Form.Item>
+                                {this.displaySymptomFormItem()}
 
-                        {this.displayMedHistoryFormItem()}
+                                <Form.Item>
+                                    <Button type="primary" htmlType="submit" onClick={this.onSubmit}
+                                            type="primary">submit</Button>
+                                </Form.Item>
+                            </Form>
+                        </Card>
+                    </Col>
+                    <Col flex={'15px'}></Col>
+                    <Col flex="auto">
+                        {this.state.submitClicked && <Spin style={{marginTop: '30%'}} size="large"/>}
+                        {this.state.diseaseFetched &&
+                        <Alert style={{marginTop: '5%'}}
+                               message="Patient may have these diseases"
+                               description={
+                                   <div style={{textAlign: 'left', marginLeft: '40%'}}>
+                                       {this.displayDisease()}
+                                   </div>
+                               }
+                               type="error"
+                        />
 
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit" onClick={this.onSubmit}
-                                    type="primary">submit</Button>
-                        </Form.Item>
-                    </Form>
-                    </Card>
-                </Col>
-                <Col flex={'15px'}></Col>
-                <Col flex="auto">
-                    {this.state.submitClicked && <Spin style={{marginTop: '30%'}} size="large" />}
-                    {this.state.diseaseFetched &&
-                    <Alert style={{marginTop: '5%'}}
-                           message="Patient may have these diseases"
-                           description={
-                               <div style={{textAlign: 'left', marginLeft: '40%'}}>
-                                   {this.displayDisease()}
-                               </div>
-                           }
-                           type="error"
-                    />
+                        }
+                        {this.state.diseaseFetched && this.diseases.length > 0 &&
+                        <Alert style={{marginTop: '5%'}}
+                               message="Please conduct these tests to confirm"
+                               description={
+                                   <div style={{textAlign: 'left', marginLeft: '40%'}}>
+                                       {this.displayTests()}
+                                   </div>
+                               }
+                               type="warning"
+                        />
 
-                    }
-                    {this.state.diseaseFetched && this.diseases.length > 0 &&
-                    <Alert style={{marginTop: '5%'}}
-                           message="Please conduct these tests to confirm"
-                           description={
-                               <div style={{textAlign: 'left', marginLeft: '40%'}}>
-                                   {this.displayTests()}
-                               </div>
-                           }
-                           type="warning"
-                    />
-
-                    }
-                </Col>
-            </Row>
+                        }
+                    </Col>
+                </Row>}
+            </div>
         )
 
     }

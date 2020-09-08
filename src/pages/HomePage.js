@@ -1,8 +1,11 @@
 import React from "react";
 import {Button, message, Select, Steps, Layout} from 'antd';
 import {MedHistory} from "./MedHistory";
-import {Test} from "./Test";
+import {TestPage} from "./TestPage";
 import {TreatmentPage} from "./TreatmentPage";
+import {Introduction} from "./Introduction";
+import {DiseaseTest, FinalDisease, FinalDiseaseAfterTreatment, IntroductionVal} from "../common/DiseaseTest";
+import {ResultPage} from "./ResultPage";
 
 const {Step} = Steps;
 const {Option} = Select;
@@ -12,21 +15,30 @@ export class HomePage extends React.Component {
 
     state = {
         current: 0,
+        updated: 0,
     };
 
 
     steps = [
         {
+            title: 'Introduction',
+            content: (<Introduction update={() => {this.updateState()}}></Introduction>)
+        },
+        {
             title: 'History',
-            content: (<MedHistory></MedHistory>),
+            content: (<MedHistory update={() => {this.updateState()}}></MedHistory>),
         },
         {
             title: 'Tests',
-            content: (<Test></Test>),
+            content: (<TestPage update={() => {this.updateState()}}></TestPage>),
         },
         {
             title: 'Treatments',
-            content: (<TreatmentPage></TreatmentPage>),
+            content: (<TreatmentPage update={() => {this.updateState()}}></TreatmentPage>),
+        },
+        {
+            title: 'Results',
+            content: (<ResultPage></ResultPage>),
         },
     ];
 
@@ -39,6 +51,40 @@ export class HomePage extends React.Component {
         const current = this.state.current - 1;
         this.setState({current});
     };
+
+    validation = (current) => {
+        if (current == 0) {
+            if (Object.keys(IntroductionVal.value).length == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (current == 1) {
+            if (Object.keys(DiseaseTest.value).length == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else if (current == 2) {
+            if ((FinalDisease.value).length == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else if (current == 3) {
+            if (!FinalDiseaseAfterTreatment.updated) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    updateState = () => {
+        this.setState({updated: this.state.updated++});
+    }
 
 
     render() {
@@ -65,7 +111,7 @@ export class HomePage extends React.Component {
                         }}>
                             <div className="steps-action">
                                 {current < steps.length - 1 && (
-                                    <Button type="primary" onClick={() => this.next()}>
+                                    <Button disabled={this.validation(current)} type="primary" onClick={() => this.next()}>
                                         Next
                                     </Button>
                                 )}
