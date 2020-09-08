@@ -11,6 +11,6 @@ export var IntroductionVal = {
 }
 
 export var FinalDiseaseAfterTreatment = {
-    value : {},
+    value : [],
     updated: false
 }

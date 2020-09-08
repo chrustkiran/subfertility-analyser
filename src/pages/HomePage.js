@@ -21,7 +21,7 @@ export class HomePage extends React.Component {
     steps = [
         {
             title: 'Introduction',
-            content: (<Introduction update={() => {this.updateState()}}></Introduction>)
+            content: (<Introduction redirectTo={(page) => {this.redirectTo(page)}} update={() => {this.updateState()}}></Introduction>)
         },
         {
             title: 'History',
@@ -36,7 +36,7 @@ export class HomePage extends React.Component {
             content: (<TreatmentPage update={() => {this.updateState()}}></TreatmentPage>),
         },
         {
-            title: 'Results',
+            title: 'Outcome',
             content: (<ResultPage></ResultPage>),
         },
     ];
@@ -83,6 +83,10 @@ export class HomePage extends React.Component {
 
     updateState = () => {
         this.setState({updated: this.state.updated++});
+    }
+
+    redirectTo(page) {
+        this.setState({current: page});
     }
 
 

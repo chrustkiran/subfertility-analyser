@@ -3,7 +3,7 @@ import {Button, Card, Col, Form, Input, Select, message, Spin} from "antd";
 import {bloodgroup} from "../conf/Bloodgroup";
 import {MedHistoryService} from "../service/MedHistoryService";
 import {CaseUtil} from "../util/CaseUtil";
-import {IntroductionVal} from "../common/DiseaseTest";
+import {FinalDiseaseAfterTreatment, IntroductionVal} from "../common/DiseaseTest";
 import {IntroductionService} from "../service/IntroductionService";
 
 const formItemStyleObt = {width: '80%', float: "left"};
@@ -35,6 +35,8 @@ export class Introduction extends React.Component {
                     },
                     content : 'This patient has infertility'
                 });
+                FinalDiseaseAfterTreatment.value.push('Fertility');
+                this.props.redirectTo(4);
             } else {
                 IntroductionVal.value = values;
                 this.props.update();

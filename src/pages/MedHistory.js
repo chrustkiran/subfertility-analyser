@@ -17,25 +17,25 @@ export class MedHistory extends React.Component {
     state = {
         medHistoryFetched: false,
         symptomAnalysisFetched: false,
+        riskBehavioursFetched: false,
         submitClicked: false,
         diseaseFetched: false,
     };
 
     medHistory = [];
     allSymptoms = [];
+    riskBehaviours = [];
     diseases = [];
     diseaseTests = {};
 
     constructor(props) {
         super(props);
-        // this.getAllMedHistory();
         this.getAllSymptomAnalysis();
+        this.getAllRisBehaviour();
     }
 
     onInputValueChanges = (label, value) => {
-        /*const obj = {};
-        obj[label] = value;
-        this.setState(obj);*/
+
     };
 
     getAllSymptomAnalysis = () => {
@@ -46,17 +46,17 @@ export class MedHistory extends React.Component {
         });
     }
 
-    /*getAllMedHistory = () => {
-        this.medHistory = [];
-        MedHistoryService.getMedHistory().then(res => {
-            this.medHistory = res;
-            this.setState({medHistoryFetched: true});
+    getAllRisBehaviour = () => {
+        this.riskBehaviours = [];
+        MedHistoryService.getRiskBehaviour().then(res => {
+            this.riskBehaviours = res;
+            this.setState({riskBehavioursFetched: true});
         });
-    };*/
+    }
+
 
     displaySymptomFormItem = () => {
         return this.allSymptoms != undefined && Object.keys(this.allSymptoms).map(symptom => {
-            // console.log(symptom);
             if (Object.keys(this.allSymptoms[symptom]).length > 0 && this.allSymptoms[symptom].length == undefined) {
                 return (<div>
                         <Title style={{fontSize: 18}} underline>{CaseUtil.camelToNorm(symptom)}</Title>
@@ -106,33 +106,26 @@ export class MedHistory extends React.Component {
                     </Form.Item>
                 )
             }
-            /*return (
-                <Form.Item label={CaseUtil.camelToNorm(medHist)} name={CaseUtil.camelToNorm(medHist)}
-                >
-                    <Input style={formItemStyleObt} placeholder={CaseUtil.camelToNorm(medHist)} onChange={(event) => {
-                        this.onInputValueChanges(medHist, event.target.value)
-                    }}/>
-                </Form.Item>
-            )*/
         })
     };
 
-    /*displayMedHistoryFormItem = () => {
-        return this.medHistory != undefined && this.medHistory.map(medHist => {
+    displayRiskBehaviour = () => {
+        return this.riskBehaviours != undefined && this.riskBehaviours.map(riskBehaviour => {
             return (
-                <Form.Item label={CaseUtil.camelToNorm(medHist)} name={CaseUtil.camelToNorm(medHist)}
-                           >
-                    <Input style={formItemStyleObt} placeholder={CaseUtil.camelToNorm(medHist)} onChange={(event) => {
-                        this.onInputValueChanges(medHist, event.target.value)
-                    }}/>
+                <Form.Item label={CaseUtil.camelToNorm(riskBehaviour)} name={CaseUtil.NormToSnake(CaseUtil.camelToNorm(riskBehaviour))}
+                >
+                    <Input style={formItemStyleObt} placeholder={CaseUtil.camelToNorm(riskBehaviour)}
+                           onChange={(event) => {
+                               this.onInputValueChanges(riskBehaviour, event.target.value)
+                           }}/>
                 </Form.Item>
             )
         })
-    };*/
+    }
+
 
     fetchDisease = (reqObj) => {
         this.diseases = [];
-        // const reqObj = {name: this.state.Name, age: this.state.Age,smoking: this.state.Smoking, alcohol: this.state.Alcohol};
         DiseaseService.getMedHistory(reqObj).then(res => {
             this.setState({submitClicked: false})
             Object.keys(res).forEach(disease => {
@@ -205,6 +198,7 @@ export class MedHistory extends React.Component {
                                   onFinish={this.onFinish}>
 
                                 {this.displaySymptomFormItem()}
+                                {this.displayRiskBehaviour()}
 
                                 <Form.Item>
                                     <Button type="primary" htmlType="submit" onClick={this.onSubmit}
