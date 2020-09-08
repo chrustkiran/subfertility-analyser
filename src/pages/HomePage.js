@@ -18,7 +18,6 @@ export class HomePage extends React.Component {
         updated: 0,
     };
 
-
     steps = [
         {
             title: 'Introduction',
