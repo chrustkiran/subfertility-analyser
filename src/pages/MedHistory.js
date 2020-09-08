@@ -198,7 +198,11 @@ export class MedHistory extends React.Component {
                                   onFinish={this.onFinish}>
 
                                 {this.displaySymptomFormItem()}
-                                {this.displayRiskBehaviour()}
+                                <Card>
+                                    <Title style={{fontSize: 15}}
+                                           type={"secondary"}>{"Risk Behaviour"}</Title>
+                                    {this.displayRiskBehaviour()}
+                                </Card>
 
                                 <Form.Item>
                                     <Button type="primary" htmlType="submit" onClick={this.onSubmit}
